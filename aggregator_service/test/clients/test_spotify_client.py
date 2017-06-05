@@ -4,10 +4,6 @@ from aggregator_service.clients.spotify import SpotifyClient
 from spotipy.client import SpotifyException
 
 
-CLIENT_ID = "client_id"
-CLIENT_SECRET = "client_secret"
-
-
 class TestSpotifyClient(TestCase):
 
     def setUp(self):
@@ -62,7 +58,40 @@ class TestSpotifyClient(TestCase):
             SpotifyException, self.spotify_client.get_artist_uri, "")
 
     def test_get_related_artists(self):
-        pass
+        mocked_response = {
+            "artists": [
+                {
+                    "name": "Lemar"
+                },
+                {
+                    "name": "Kano"
+                }
+            ]
+        }
+        self.mock_spotipy.artist_related_artists.return_value = mocked_response
+        results = self.spotify_client.get_related_artists("uri")
+
+        self.assertTrue("Lemar" in results)
+        self.assertTrue("Kano" in results)
+        self.assertEquals(2, len(results))
+        self.mock_spotipy.artist_related_artists.assert_called_once_with(
+            "uri"
+        )
+
+    def test_get_related_artists_when_none(self):
+        mocked_response = {
+            "artists": []
+        }
+        self.mock_spotipy.artist_related_artists.return_value = mocked_response
+        results = self.spotify_client.get_related_artists("uri")
+
+        self.assertEquals(0, len(results))
+        self.mock_spotipy.artist_related_artists.assert_called_once_with(
+            "uri"
+        )
 
     def test_get_related_artists_failure(self):
-        pass
+        self.mock_spotipy.artist_related_artists.side_effect = \
+            SpotifyException(401, 99, "msg")
+        self.assertRaises(
+            SpotifyException, self.spotify_client.get_related_artists, "")

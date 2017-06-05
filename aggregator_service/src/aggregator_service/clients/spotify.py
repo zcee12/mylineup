@@ -11,4 +11,5 @@ class SpotifyClient(object):
             return None
 
     def get_related_artists(self, artist_uri):
-        pass
+        related = self._spotipy_client.artist_related_artists(artist_uri)
+        return [artist["name"] for artist in related["artists"]]
