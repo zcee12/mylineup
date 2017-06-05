@@ -4,7 +4,7 @@ clean:
 	rm -rf venv/
 
 run: venv
-	venv/bin/python src/aggregator_service/main.py
+	venv/bin/python src/aggregator_service/app.py
 
 # With thanks - http://blog.bottlepy.org/2012/07/16/virtualenv-and-makefiles.html
 venv: venv/bin/activate
