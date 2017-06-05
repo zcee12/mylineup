@@ -1,4 +1,5 @@
 import requests
+from requests.exceptions import HTTPError
 
 URL = (
     "https://api.songkick.com"
@@ -17,6 +18,15 @@ class SongkickClient(object):
         r = requests.get(
             URL.format(event_id=event_id, api_key=self._api_key)
         )
+        try:
+            r.raise_for_status()
+        except HTTPError as e:
+            if e.response.status_code == 404:
+                raise UnknownSongKickEventError(
+                    "{event_id} unknown".format(event_id=event_id)
+                )
+            raise SongkickClientError(e)
+
         response = r.json()
 
         performances = \
@@ -25,3 +35,11 @@ class SongkickClient(object):
             performance["artist"]["displayName"]
             for performance in performances
         ]
+
+
+class UnknownSongKickEventError(Exception):
+    pass
+
+
+class SongkickClientError(Exception):
+    pass
