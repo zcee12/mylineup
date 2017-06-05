@@ -5,7 +5,7 @@ clean:
 
 test:
 	# Switch this to use setup.py later
-	nosetests test
+	nosetests test/*
 
 run: venv
 	venv/bin/python src/aggregator_service/app.py
