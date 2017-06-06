@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 from mock import Mock
 from unittest import TestCase
@@ -7,9 +8,12 @@ from aggregator_service.processor import Processor
 
 JOB_ID = "5c22b510-98ec-4570-a8e5-1c422ffb41f9"
 FIXTURE_JOB = (
+    "test/fixtures/pending-static/5c22b510-98ec-4570-a8e5-1c422ffb41f9")
+PENDING_LOCATION = (
     "test/fixtures/pending/5c22b510-98ec-4570-a8e5-1c422ffb41f9")
-EXPECTED_JOB = (
+DONE_LOCATION = (
     "test/fixtures/processed/5c22b510-98ec-4570-a8e5-1c422ffb41f9")
+
 PROCESSED_DIR = "test/fixtures/processed"
 
 
@@ -26,10 +30,18 @@ class TestProcessor(TestCase):
         self.job = Job(JOB_ID, "123", ["Muse", "Ed Sheeran"])
 
         # TODO: Mock out the file IO rather than making destructive actions
+
         try:
-            os.remove(EXPECTED_JOB)
+            os.remove(PENDING_LOCATION)
         except (OSError):
             pass
+
+        try:
+            os.remove(DONE_LOCATION)
+        except (OSError):
+            pass
+
+        shutil.copy(FIXTURE_JOB, PENDING_LOCATION)
 
     def test_init(self):
         self.assertEquals(
@@ -44,7 +56,7 @@ class TestProcessor(TestCase):
             self.fail()
 
         except Exception:
-            with open(EXPECTED_JOB) as f:
+            with open(DONE_LOCATION) as f:
                 job = json.loads(f.read())
             self.assertEquals("failed", job["status"])
 
@@ -55,7 +67,7 @@ class TestProcessor(TestCase):
             self.fail()
 
         except Exception:
-            with open(EXPECTED_JOB) as f:
+            with open(DONE_LOCATION) as f:
                 job = json.loads(f.read())
             self.assertEquals("failed", job["status"])
 
@@ -74,7 +86,7 @@ class TestProcessor(TestCase):
         ]
         self.processor.dispatch(self.job)
 
-        with open(EXPECTED_JOB) as f:
+        with open(DONE_LOCATION) as f:
             job = json.loads(f.read())
 
         self.assertEquals("succeeded", job["status"])
@@ -96,7 +108,7 @@ class TestProcessor(TestCase):
         ]
         self.processor.dispatch(self.job)
 
-        with open(EXPECTED_JOB) as f:
+        with open(DONE_LOCATION) as f:
             job = json.loads(f.read())
 
         self.assertEquals("succeeded", job["status"])

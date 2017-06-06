@@ -8,7 +8,7 @@ FIXTURE_PENDING_JOB_2 = "b8e46f11-dc79-469a-92f6-0a7b4897c97f"
 class TestApp(TestCase):
 
     def test_get_pending_jobs(self):
-        jobs = app.get_pending_jobs("test/fixtures/pending/")
+        jobs = app.get_pending_jobs("test/fixtures/pending-static")
 
         expected_jobs = [
             FIXTURE_PENDING_JOB_1,

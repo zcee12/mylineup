@@ -3,6 +3,9 @@ import json
 import spotipy
 
 from time import sleep
+
+from job import Job
+from processor import Processor
 from spotipy.oauth2 import SpotifyClientCredentials
 from clients.spotify import SpotifyClient
 from clients.songkick import SongkickClient
@@ -10,6 +13,7 @@ from clients.songkick import SongkickClient
 
 INTERVAL = 10
 CONF_LOCATION = "config.json"
+DONE_DIRECTORY = "processed"
 
 
 class Config(object):
@@ -58,11 +62,20 @@ def get_credentials(conf_location):
 
 def main():
     print "started..."
+
     config = get_credentials(CONF_LOCATION)
     spotify_client = get_spotify_client(config)
     songkick_client = get_songkick_client(config)
+
+    processor = Processor(
+        DONE_DIRECTORY,
+        spotify_client,
+        songkick_client
+    )
+
     while(1):
-        # invoke()
+        job = Job()
+        processor.dispatching(job)
         print "dispatching"
         sleep(INTERVAL)
 
