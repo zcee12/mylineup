@@ -23,7 +23,7 @@ class TestProcessor(TestCase):
             self.spotify_client,
             self.songkick_client
         )
-        self.job = Job(JOB_ID, "123", ["Radiohead", "Ed Sheeran"])
+        self.job = Job(JOB_ID, "123", ["Muse", "Ed Sheeran"])
 
         # TODO: Mock out the file IO rather than making destructive actions
         try:
@@ -59,5 +59,29 @@ class TestProcessor(TestCase):
                 job = json.loads(f.read())
             self.assertEquals("failed", job["status"])
 
-    def test_dispatch_success(self):
+    def test_dispatch_success_no_matches(self):
         pass
+
+    def test_dispatch_success_with_matches(self):
+        self.songkick_client.get_performers.return_value = [
+            "Radiohead", "Ed Sheeran", "Stormzy"
+        ]
+
+        self.spotify_client.get_artist_uri.side_effect = [
+            "uri:muse", "uri:edsheeran"
+        ]
+        sp_c = self.spotify_client
+        sp_c.get_related_artists.side_effect = [
+            ["Radiohead", "The Stone Roses"],
+            ["Taylor Swift", "Stormzy"]
+        ]
+        self.processor.dispatch(self.job)
+
+        with open(EXPECTED_JOB) as f:
+            job = json.loads(f.read())
+
+        self.assertEquals("succeeded", job["status"])
+        self.assertTrue("Radiohead" in job["result"])
+        self.assertTrue("Stormzy" in job["result"])
+        self.assertTrue("Ed Sheeran" in job["result"])
+        self.assertTrue(3, len(job["result"]))
