@@ -1,16 +1,17 @@
 import os
 import json
 import spotipy
+import logging
 
 from time import sleep
-
-from job import Job
+from job import job_from
 from processor import Processor
 from spotipy.oauth2 import SpotifyClientCredentials
 from clients.spotify import SpotifyClient
 from clients.songkick import SongkickClient
 
 
+LOGGER = logging.getLogger(__name__)
 INTERVAL = 10
 CONF_LOCATION = "config.json"
 
@@ -77,8 +78,12 @@ def main():
     )
 
     while(1):
-        processor.dispatching(job)
-        print "dispatching"
+        job_ids = get_pending_jobs(PENDING_DIRECTORY)
+        logging.info("Found job ids {0}".format(job_ids))
+
+        for job_id in job_ids:
+            job = job_from(job_id, PENDING_DIRECTORY)
+            processor.dispatch(job)
         sleep(INTERVAL)
 
 
