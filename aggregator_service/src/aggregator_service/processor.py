@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from sets import Set
 
 LOGGER = logging.getLogger(__name__)
@@ -7,7 +8,9 @@ LOGGER = logging.getLogger(__name__)
 
 class Processor(object):
 
-    def __init__(self, processed_dir, spotify_client, songkick_client):
+    def __init__(
+            self, pending_dir, processed_dir, spotify_client, songkick_client):
+        self.pending_dir = pending_dir
         self.processed_dir = processed_dir
         self.spotify_client = spotify_client
         self.songkick_client = songkick_client
@@ -36,10 +39,12 @@ class Processor(object):
             Set(performers).intersection(Set(related_artists + job.artists)))
 
     def dispatch(self, job):
-        location = "{0}/{1}".format(self.processed_dir, job.id)
+        pending_location = os.path.join(self.pending_dir, job.id)
+        processed_location = os.path.join(self.processed_dir, job.id)
 
         logging.info("Started job " + job.id)
-        logging.debug("{0} location is {1}".format(job.id, location))
+        logging.debug(
+            "{0} done location is {1}".format(job.id, processed_location))
 
         try:
             job.result = self._get_performer_recommendation(job)
@@ -50,7 +55,8 @@ class Processor(object):
             logging.error(
                 "Dispatch for job " + job.id + " failed due to " + str(e))
 
-        with open(location, "wb") as f:
+        with open(processed_location, "wb") as f:
             f.write(json.dumps(job.__dict__))
 
+        os.remove(pending_location)
         logging.info("Finished job " + job.id)
