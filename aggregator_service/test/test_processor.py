@@ -59,8 +59,27 @@ class TestProcessor(TestCase):
                 job = json.loads(f.read())
             self.assertEquals("failed", job["status"])
 
-    def test_dispatch_success_no_matches(self):
-        pass
+    def test_dispatch_success_no_related_artists(self):
+        self.songkick_client.get_performers.return_value = [
+            "Radiohead", "Ed Sheeran", "Stormzy"
+        ]
+
+        self.spotify_client.get_artist_uri.side_effect = [
+            "uri:muse", "uri:edsheeran"
+        ]
+        sp_c = self.spotify_client
+        sp_c.get_related_artists.side_effect = [
+            ["Genesis", "The Stone Rosesj"],
+            ["Taylor Swift", "Kayne"]
+        ]
+        self.processor.dispatch(self.job)
+
+        with open(EXPECTED_JOB) as f:
+            job = json.loads(f.read())
+
+        self.assertEquals("succeeded", job["status"])
+        self.assertTrue("Ed Sheeran" in job["result"])
+        self.assertTrue(1, len(job["result"]))
 
     def test_dispatch_success_with_matches(self):
         self.songkick_client.get_performers.return_value = [

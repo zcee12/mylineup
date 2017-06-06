@@ -22,7 +22,6 @@ class Processor(object):
             self.spotify_client.get_artist_uri(artist)
             for artist in job.artists
         ]
-        logging.debug(artist_uris)
 
         related_artists = []
         for artist_uri in artist_uris:
@@ -44,7 +43,6 @@ class Processor(object):
 
         try:
             job.result = self._get_performer_recommendation(job)
-            logging.info(job.result)
             job.status = "succeeded"
 
         except Exception as e:
@@ -54,3 +52,5 @@ class Processor(object):
 
         with open(location, "wb") as f:
             f.write(json.dumps(job.__dict__))
+
+        logging.info("Finished job " + job.id)
