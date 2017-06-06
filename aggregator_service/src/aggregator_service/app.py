@@ -13,7 +13,10 @@ from clients.songkick import SongkickClient
 
 INTERVAL = 10
 CONF_LOCATION = "config.json"
-DONE_DIRECTORY = "processed"
+
+# TODO Put these in config
+PENDING_DIRECTORY = "runtime/pending"
+DONE_DIRECTORY = "runtime/processed"
 
 
 class Config(object):
@@ -74,7 +77,6 @@ def main():
     )
 
     while(1):
-        job = Job()
         processor.dispatching(job)
         print "dispatching"
         sleep(INTERVAL)

@@ -1,5 +1,5 @@
 from unittest import TestCase
-from aggregator_service.job import Job
+from aggregator_service.job import Job, job_from
 
 
 class TestJob(TestCase):
@@ -13,3 +13,12 @@ class TestJob(TestCase):
         self.assertEquals(["Radiohead", "Ed Sheeran"], self.job.artists)
         self.assertEquals("pending", self.job.status)
         self.assertEquals(None, self.job.result)
+
+    def test_from(self):
+        job = job_from(
+            "5c22b510-98ec-4570-a8e5-1c422ffb41f9",
+            "test/fixtures/pending-static"
+        )
+        self.assertEquals("5c22b510-98ec-4570-a8e5-1c422ffb41f9", job.id)
+        self.assertEquals("123", job.event_id)
+        self.assertEquals(["Radiohead", "Ed Sheeran"], job.artists)
