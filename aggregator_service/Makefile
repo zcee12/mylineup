@@ -7,6 +7,9 @@ test:
 	# Switch this to use setup.py later
 	nosetests test/*
 
+fixture:
+	cp test/fixtures/pending-static/5c22b510-98ec-4570-a8e5-1c422ffb41f9 runtime/pending/
+
 run: venv
 	venv/bin/python src/aggregator_service/app.py
 

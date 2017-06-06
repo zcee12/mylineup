@@ -2,6 +2,7 @@ import os
 import json
 import spotipy
 import logging
+import sys
 
 from time import sleep
 from job import job_from
@@ -17,7 +18,7 @@ CONF_LOCATION = "config.json"
 
 # TODO Put these in config
 PENDING_DIRECTORY = "runtime/pending"
-DONE_DIRECTORY = "runtime/processed"
+PROCESSED_DIRECTORY = "runtime/processed"
 
 
 class Config(object):
@@ -72,20 +73,26 @@ def main():
     songkick_client = get_songkick_client(config)
 
     processor = Processor(
-        DONE_DIRECTORY,
+        PENDING_DIRECTORY,
+        PROCESSED_DIRECTORY,
         spotify_client,
         songkick_client
     )
 
     while(1):
-        job_ids = get_pending_jobs(PENDING_DIRECTORY)
-        logging.info("Found job ids {0}".format(job_ids))
+        try:
+            job_ids = get_pending_jobs(PENDING_DIRECTORY)
+            print "Found job ids {0}".format(job_ids)
 
-        for job_id in job_ids:
-            job = job_from(job_id, PENDING_DIRECTORY)
-            processor.dispatch(job)
+            for job_id in job_ids:
+                job = job_from(job_id, PENDING_DIRECTORY)
+                processor.dispatch(job)
+        except Exception as e:
+            logging.error(
+                "Error {0} processing job batch {1} ".format(str(e), job_ids))
         sleep(INTERVAL)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     main()
