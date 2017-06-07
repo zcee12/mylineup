@@ -11,6 +11,16 @@ PROCESSED_DIR = "test/fixtures/processed"
 BASE_URL = "http://localhost:5000/api/v1"
 
 
+def write_pending_job(job_id, contents):
+    with open(os.path.join(PENDING_DIR, job_id), "wb") as f:
+        f.write(json.dumps(contents))
+
+
+def write_processed_job(job_id, contents):
+    with open(os.path.join(PROCESSED_DIR, job_id), "wb") as f:
+        f.write(json.dumps(contents))
+
+
 def build(stub):
     return "{0}{1}".format(BASE_URL, stub)
 
@@ -148,35 +158,29 @@ class TestLineUpStatusEndpoint(BaseCase):
         self.assertEquals("Line up not found", response.json()["msg"])
 
     def test_pending(self):
-        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
-            f.write("{}")
+        write_pending_job("123-abc", "{}")
 
         response = requests.get(build("/lineup/123-abc/status"))
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "pending"}, response.json())
 
     def test_processed_and_failed_returns(self):
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps({"status": "failed"}))
+        write_processed_job("123-abc", {"status": "failed"})
 
         response = requests.get(build("/lineup/123-abc/status"))
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "failed"}, response.json())
 
     def test_processed_and_succeeded_returns(self):
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps({"status": "succeeded"}))
+        write_processed_job("123-abc", {"status": "succeeded"})
 
         response = requests.get(build("/lineup/123-abc/status"))
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "succeeded"}, response.json())
 
     def test_processed_before_removing_from_pending_returns(self):
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps({"status": "succeeded"}))
-
-        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
-            f.write("{}")
+        write_processed_job("123-abc", {"status": "succeeded"})
+        write_pending_job("123-abc", "{}")
 
         response = requests.get(build("/lineup/123-abc/status"))
         self.assertEquals(200, response.status_code)
@@ -200,8 +204,7 @@ class TestLineUpEndpoint(BaseCase):
             "result": ["Radiohead", "Ed Sheeran"]
         }
 
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(successful_job))
+        write_processed_job("123-abc", successful_job)
 
         response = requests.get(build("/lineup/123-abc"))
         self.assertEquals(200, response.status_code)
@@ -224,8 +227,7 @@ class TestLineUpEndpoint(BaseCase):
             "result": []
         }
 
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(successful_job))
+        write_processed_job("123-abc", successful_job)
 
         response = requests.get(build("/lineup/123-abc"))
         self.assertEquals(200, response.status_code)
@@ -247,8 +249,7 @@ class TestLineUpEndpoint(BaseCase):
             "result": None
         }
 
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(failed_job))
+        write_processed_job("123-abc", failed_job)
 
         response = requests.get(build("/lineup/123-abc"))
         self.assertEquals(200, response.status_code)
@@ -267,8 +268,7 @@ class TestLineUpEndpoint(BaseCase):
             "artists": ["Radiohead", "Nobody"],
         }
 
-        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(pending_job))
+        write_pending_job("123-abc", pending_job)
 
         response = requests.get(build("/lineup/123-abc"))
         self.assertEquals(200, response.status_code)
@@ -295,11 +295,8 @@ class TestLineUpEndpoint(BaseCase):
             "result": ["Radiohead", "Ed Sheeran"]
         }
 
-        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(pending_job))
-
-        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
-            f.write(json.dumps(successful_job))
+        write_pending_job("123-abc", pending_job)
+        write_processed_job("123-abc", successful_job)
 
         response = requests.get(build("/lineup/123-abc"))
         self.assertEquals(200, response.status_code)
@@ -312,3 +309,24 @@ class TestLineUpEndpoint(BaseCase):
             sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
         self.assertEquals(
             sorted(["Radiohead", "Ed Sheeran"]), sorted(r["result"]))
+
+
+#class TestLineUpListingEndpoint(BaseCase):
+#
+#    def test_listing_includes_both_pending_and_processed_only_once(self):
+#        response = requests.get(build("/lineup"))
+#        r = response.json()
+#
+#        self.assertEquals(200, response.status_code)
+#        self.assertTrue(2, len(r))
+#        self.assertTrue("/api/v1/lineup/1" in r)
+#        self.aserTrue("/api/v1/lineup/2" in r)
+#
+#    def test_no_lineups_yet(self):
+#        response = requests.get(build("/lineup"))
+#        r = response.json()
+#
+#        self.assertEquals(200, response.status_code)
+#        self.assertTrue(2, len(r))
+#        self.assertTrue("/api/v1/lineup/123-abc" in r)
+#        self.aserTrue("/api/v1/lineup/abc-123" in r)
