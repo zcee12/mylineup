@@ -53,18 +53,16 @@ class TestRecommendEndpoint(BaseCase):
 
         self.assertEqual(201, response.status_code)
         self.assertTrue("/api/v1/lineup/" in response.json()["ref"])
-        self.assertFalse(len(response.json()["ref"].rsplit("/")[-1]) == 0)
 
         job = os.listdir(PENDING_DIR)[0]
         expected_location = os.path.join(PENDING_DIR, job)
-
         with open(expected_location) as f:
             data = json.loads(f.read())
-            # TODO Test for valid uuid4 id
             self.assertEquals(event_id, data["event_id"])
             self.assertEquals(
                 sorted(["Muse", "Radiohead"]), sorted(data["artists"])
             )
+        self.assertEquals(job, response.json()["ref"].rsplit("/")[-1])
 
     def test_invalid_json_returns_400(self):
         url = build("/lineup/recommend")

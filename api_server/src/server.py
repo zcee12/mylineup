@@ -105,7 +105,7 @@ def recommend():
     with open(job, "wb") as f:
         f.write(json.dumps(request.json))
 
-    data = json.dumps({"ref": "/api/v1/lineup/1"})
+    data = json.dumps({"ref": "/api/v1/lineup/{0}".format(job)})
     return Response(data, status=201, mimetype="application/json")
 
 
