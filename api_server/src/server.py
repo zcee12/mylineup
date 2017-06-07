@@ -64,7 +64,7 @@ def _not_found_response():
 
 def _bad_request_response(error):
     return Response(
-        json.dumps({"status": 400, "reason": str(error)}),
+        json.dumps({"msg": str(error)}),
         status=400,
         mimetype="application/json"
     )

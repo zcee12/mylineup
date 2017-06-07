@@ -73,7 +73,6 @@ class TestRecommendEndpoint(BaseCase):
             headers={"Content-Type": "application/json"},
             data="/"
         )
-
         self.assertEqual(400, response.status_code)
 
     def test_no_event_id_field_returns_400(self):
@@ -89,6 +88,8 @@ class TestRecommendEndpoint(BaseCase):
         )
 
         self.assertEqual(400, response.status_code)
+        self.assertTrue(
+            "JSON body does not match schema" in response.json()["msg"])
 
     def test_event_id_not_string_returns_400(self):
         payload = {
@@ -104,6 +105,8 @@ class TestRecommendEndpoint(BaseCase):
         )
 
         self.assertEqual(400, response.status_code)
+        self.assertTrue(
+            "JSON body does not match schema" in response.json()["msg"])
 
     def test_no_artists_field_returns_400(self):
         payload = {
@@ -118,6 +121,8 @@ class TestRecommendEndpoint(BaseCase):
         )
 
         self.assertEqual(400, response.status_code)
+        self.assertTrue(
+            "JSON body does not match schema" in response.json()["msg"])
 
     def test_artists_not_list_returns_400(self):
         payload = {
@@ -133,21 +138,8 @@ class TestRecommendEndpoint(BaseCase):
         )
 
         self.assertEqual(400, response.status_code)
-
-#    def test_no_content_type(self):
-#        payload = {
-#            "event_id": "123",
-#            "artists": ["Muse", "Radiohead"]
-#        }
-#
-#        url = build("/lineup/recommend")
-#        response = requests.post(
-#            url,
-#            headers={"Content-Type": "application/json"},
-#            data=json.dumps(payload)
-#        )
-#
-#        self.assertEqual(400, response.status_code)
+        self.assertTrue(
+            "JSON body does not match schema" in response.json()["msg"])
 
 
 class TestLineUpStatusEndpoint(BaseCase):
