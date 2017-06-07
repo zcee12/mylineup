@@ -18,6 +18,18 @@ PENDING_DIR = "test/fixtures/pending"
 PROCESSED_DIR = "test/fixtures/processed"
 
 
+def clean():
+    try:
+        os.remove(PENDING_LOCATION)
+    except (OSError):
+        pass
+
+    try:
+        os.remove(PROCESSED_LOCATION)
+    except (OSError):
+        pass
+
+
 class TestProcessor(TestCase):
 
     def setUp(self):
@@ -32,18 +44,11 @@ class TestProcessor(TestCase):
         self.job = Job(JOB_ID, "123", ["Muse", "Ed Sheeran"])
 
         # TODO: Mock out the file IO rather than making destructive actions
-
-        try:
-            os.remove(PENDING_LOCATION)
-        except (OSError):
-            pass
-
-        try:
-            os.remove(PROCESSED_LOCATION)
-        except (OSError):
-            pass
-
+        clean()
         shutil.copyfile(FIXTURE_JOB, PENDING_LOCATION)
+
+    def teardown():
+        clean()
 
     def test_init(self):
         self.assertEquals(
