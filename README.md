@@ -1,10 +1,7 @@
 # My Related Lineup
-Takes a list of artists, finds their related artists and recommends a lineup for a particular event. e.g. A Festival.
+Takes a list of artists, finds their related artists (using Spotify) and recommends a lineup for a particular event (described by SongKick). e.g. A Festival.
 
 Ideally you'd extend this to build up a playlist for all the related artists.
-
-At the moment it takes the users favourite artists as an input, looks up their related artists in the Spotify API and intersects them with the lineup of the SongKick event chosen.
-
 You could also find the related artists for artists from the SongKick line up and increase your chance of finding overlaps.
 
 ## Running the Services
