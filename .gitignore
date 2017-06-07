@@ -3,5 +3,6 @@
 *venv/
 */config.json
 aggregator_service/fixtures/pending/*
+aggregator_service/test/fixtures/pending/*
 aggregator_service/fixtures/processed/*
 runtime/*
