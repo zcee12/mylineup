@@ -62,7 +62,7 @@ class TestRecommendEndpoint(BaseCase):
                 sorted(["Muse", "Radiohead"]), sorted(data["artists"])
             )
 
-    def test_invalid_json(self):
+    def test_invalid_json_returns_400(self):
         url = build("/lineup/recommend")
         response = requests.post(
             url,
@@ -72,7 +72,7 @@ class TestRecommendEndpoint(BaseCase):
 
         self.assertEqual(400, response.status_code)
 
-    def test_no_event_id_field_throws_400(self):
+    def test_no_event_id_field_returns_400(self):
         payload = {
             "artists": ["Muse", "Radiohead"]
         }
@@ -86,7 +86,7 @@ class TestRecommendEndpoint(BaseCase):
 
         self.assertEqual(400, response.status_code)
 
-    def test_event_id_not_string_throws_400(self):
+    def test_event_id_not_string_returns_400(self):
         payload = {
             "event_id": 2,
             "artists": ["Muse", "Radiohead"]
@@ -101,7 +101,7 @@ class TestRecommendEndpoint(BaseCase):
 
         self.assertEqual(400, response.status_code)
 
-    def test_no_artists_field_throws_400(self):
+    def test_no_artists_field_returns_400(self):
         payload = {
             "event_id": "123"
         }
@@ -115,7 +115,7 @@ class TestRecommendEndpoint(BaseCase):
 
         self.assertEqual(400, response.status_code)
 
-    def test_artists_not_list_throws_400(self):
+    def test_artists_not_list_returns_400(self):
         payload = {
             "event_id": "123",
             "artists": "Muse"
@@ -148,7 +148,7 @@ class TestRecommendEndpoint(BaseCase):
 
 class TestLineUpStatusEndpoint(BaseCase):
 
-    def test_not_found(self):
+    def test_not_found_returns_400(self):
         response = requests.get(build("/lineup/123-abc/status"))
         self.assertEquals(404, response.status_code)
         self.assertEquals("Line up not found", response.json()["msg"])
@@ -161,7 +161,7 @@ class TestLineUpStatusEndpoint(BaseCase):
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "pending"}, response.json())
 
-    def test_processed_and_failed(self):
+    def test_processed_and_failed_returns(self):
         with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
             f.write(json.dumps({"status": "failed"}))
 
@@ -169,7 +169,7 @@ class TestLineUpStatusEndpoint(BaseCase):
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "failed"}, response.json())
 
-    def test_processed_and_succeeded(self):
+    def test_processed_and_succeeded_returns(self):
         with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
             f.write(json.dumps({"status": "succeeded"}))
 
@@ -177,7 +177,7 @@ class TestLineUpStatusEndpoint(BaseCase):
         self.assertEquals(200, response.status_code)
         self.assertEquals({"value": "succeeded"}, response.json())
 
-    def test_processed_before_removing_from_pending(self):
+    def test_processed_before_removing_from_pending_returns(self):
         with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
             f.write(json.dumps({"status": "succeeded"}))
 
@@ -191,14 +191,133 @@ class TestLineUpStatusEndpoint(BaseCase):
 
 class TestLineUpEndpoint(BaseCase):
 
-    def test_not_found(self):
-        pass
+    def test_not_found_returns_400(self):
+        response = requests.get(build("/lineup/123-abc/status"))
+        self.assertEquals(404, response.status_code)
+        self.assertEquals("Line up not found", response.json()["msg"])
 
-    def test_successful_result(self):
-        pass
+    def test_successful_result_returns(self):
+        # Maybe we should just serialize the actual Job object here instead?
+        successful_job = {
+            "id": "123-abc",
+            "status": "succeeded",
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+            "result": ["Radiohead", "Ed Sheeran"]
+        }
 
-    def test_failed_result(self):
-        pass
+        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(successful_job))
+
+        response = requests.get(build("/lineup/123-abc"))
+        self.assertEquals(200, response.status_code)
+
+        r = response.json()
+        self.assertEquals(4, len(r.keys()))
+        self.assertEquals("succeeded", r["status"])
+        self.assertEquals("Glastonbury-2017", r["event_id"])
+        self.assertEquals(
+            sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
+        self.assertEquals(
+            sorted(["Radiohead", "Ed Sheeran"]), sorted(r["result"]))
+
+    def test_successful_empty_result(self):
+        successful_job = {
+            "id": "123-abc",
+            "status": "succeeded",
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+            "result": []
+        }
+
+        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(successful_job))
+
+        response = requests.get(build("/lineup/123-abc"))
+        self.assertEquals(200, response.status_code)
+
+        r = response.json()
+        self.assertEquals(4, len(r.keys()))
+        self.assertEquals("succeeded", r["status"])
+        self.assertEquals("Glastonbury-2017", r["event_id"])
+        self.assertEquals(
+            sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
+        self.assertEquals([], r["result"])
+
+    def test_failed_result_returns_none(self):
+        failed_job = {
+            "id": "123-abc",
+            "status": "failed",
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+            "result": None
+        }
+
+        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(failed_job))
+
+        response = requests.get(build("/lineup/123-abc"))
+        self.assertEquals(200, response.status_code)
+
+        r = response.json()
+        self.assertEquals(4, len(r.keys()))
+        self.assertEquals("failed", r["status"])
+        self.assertEquals("Glastonbury-2017", r["event_id"])
+        self.assertEquals(
+            sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
+        self.assertEquals(None, r["result"])
+
+    def test_pending_result_returns_none(self):
+        pending_job = {
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+        }
+
+        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(pending_job))
+
+        response = requests.get(build("/lineup/123-abc"))
+        self.assertEquals(200, response.status_code)
+
+        r = response.json()
+        self.assertEquals(4, len(r.keys()))
+        self.assertEquals("succeeded", r["status"])
+        self.assertEquals("Glastonbury-2017", r["event_id"])
+        self.assertEquals(
+            sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
+        self.assertEquals(None, r["result"])
+
+    def test_processed_when_pending_still_exists(self):
+        pending_job = {
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+        }
+
+        successful_job = {
+            "id": "123-abc",
+            "status": "succeeded",
+            "event_id": "Glastonbury-2017",
+            "artists": ["Radiohead", "Nobody"],
+            "result": ["Radiohead", "Ed Sheeran"]
+        }
+
+        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(pending_job))
+
+        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps(successful_job))
+
+        response = requests.get(build("/lineup/123-abc"))
+        self.assertEquals(200, response.status_code)
+
+        r = response.json()
+        self.assertEquals(4, len(r.keys()))
+        self.assertEquals("succeeded", r["status"])
+        self.assertEquals("Glastonbury-2017", r["event_id"])
+        self.assertEquals(
+            sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
+        self.assertEquals(
+            sorted(["Radiohead", "Ed Sheeran"]), sorted(r["result"]))
 
 
 def build(stub):

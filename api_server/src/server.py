@@ -13,12 +13,16 @@ class ValidationError(Exception):
     pass
 
 
+def _get_pending_location(lineup):
+    return os.path.join(PENDING_DIR, lineup)
+
+
 def _get_processed_location(lineup):
     return os.path.join(PROCESSED_DIR, lineup)
 
 
 def _is_pending(lineup):
-    pending_location = os.path.join(PENDING_DIR, lineup)
+    pending_location = _get_pending_location(lineup)
     return os.path.isfile(pending_location)
 
 
@@ -26,10 +30,28 @@ def _is_processed(lineup):
     return os.path.isfile(_get_processed_location(lineup))
 
 
-def _get_processed_status(lineup):
+def _get_pending_job(lineup):
+    with open(_get_pending_location(lineup)) as f:
+        job = json.loads(f.read())
+    return job
+
+
+def _get_processed_job(lineup):
     with open(_get_processed_location(lineup)) as f:
         job = json.loads(f.read())
-    return job["status"]
+    return job
+
+
+def _get_processed_status(lineup):
+    return _get_processed_job(lineup)["status"]
+
+
+def _not_found_response():
+    return Response(
+        json.dumps({"msg": "Line up not found"}),
+        status=404,
+        mimetype="application/json"
+    )
 
 
 def write_job(path, data):
@@ -92,17 +114,41 @@ def status(lineup):
             status=200,
             mimetype="application/json"
         )
-
-    return Response(
-        json.dumps({"msg": "Line up not found"}),
-        status=404,
-        mimetype="application/json"
-    )
+    return _not_found_response()
 
 
-@app.route("/api/v1/lineup/<_id>")
-def lineup(_id):
-    pass
+@app.route("/api/v1/lineup/<lineup>")
+def lineup(lineup):
+    if _is_processed(lineup):
+        job = _get_processed_job(lineup)
+        data = {
+            "status": job["status"],
+            "event_id": job["event_id"],
+            "artists": job["artists"],
+            "result": job["result"]
+        }
+        return Response(
+            json.dumps(data),
+            status=200,
+            mimetype="application/json"
+        )
+
+    if _is_pending(lineup):
+        job = _get_pending_job(lineup)
+        print job
+        data = {
+            "status": "pending",
+            "event_id": job["event_id"],
+            "artists": job["artists"],
+            "result": None
+        }
+        return Response(
+            json.dumps(data),
+            status=200,
+            mimetype="application/json"
+        )
+
+    return _not_found_response()
 
 
 if __name__ == "__main__":
