@@ -178,7 +178,15 @@ class TestLineUpStatusEndpoint(BaseCase):
         self.assertEquals({"value": "succeeded"}, response.json())
 
     def test_processed_before_removing_from_pending(self):
-        pass
+        with open(os.path.join(PROCESSED_DIR, "123-abc"), "wb") as f:
+            f.write(json.dumps({"status": "succeeded"}))
+
+        with open(os.path.join(PENDING_DIR, "123-abc"), "wb") as f:
+            f.write("{}")
+
+        response = requests.get(build("/lineup/123-abc/status"))
+        self.assertEquals(200, response.status_code)
+        self.assertEquals({"value": "succeeded"}, response.json())
 
 
 class TestLineUpEndpoint(BaseCase):
