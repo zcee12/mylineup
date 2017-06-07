@@ -4,7 +4,7 @@ clean:
 	rm -rf venv/
 
 test:
-	nosetests test/*
+	nosetests test
 
 run-for-test: venv
 	PENDING_DIR="test/fixtures/pending" PROCESSED_DIR="test/fixtures/processed" venv/bin/python src/server.py
