@@ -115,11 +115,14 @@ def bad_request(error):
 def recommend():
     validate(request.json)
 
-    job = os.path.join(PENDING_DIR, str(uuid.uuid4()))
+    job_id = str(uuid.uuid4())
+
+    job = os.path.join(PENDING_DIR, job_id)
     with open(job, "wb") as f:
         f.write(json.dumps(request.json))
 
-    data = json.dumps({"ref": "/api/v1/lineup/{0}".format(job)})
+    data = json.dumps(
+        {"ref": url_for("lineup", lineup=job_id, _external=True)})
     return Response(data, status=201, mimetype="application/json")
 
 
@@ -175,7 +178,7 @@ def lineups():
 
     lineups = list(Set(pending).union(Set(processed)))
 
-    refs = [url_for("lineup", lineup=l) for l in lineups]
+    refs = [url_for("lineup", lineup=l, _external=True) for l in lineups]
     return _success_response(refs, 200)
 
 

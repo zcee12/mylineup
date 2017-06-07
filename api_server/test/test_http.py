@@ -61,9 +61,6 @@ class TestRecommendEndpoint(BaseCase):
             data=json.dumps(payload)
         )
 
-        self.assertEqual(201, response.status_code)
-        self.assertTrue("/api/v1/lineup/" in response.json()["ref"])
-
         job = os.listdir(PENDING_DIR)[0]
         expected_location = os.path.join(PENDING_DIR, job)
         with open(expected_location) as f:
@@ -72,7 +69,12 @@ class TestRecommendEndpoint(BaseCase):
             self.assertEquals(
                 sorted(["Muse", "Radiohead"]), sorted(data["artists"])
             )
-        self.assertEquals(job, response.json()["ref"].rsplit("/")[-1])
+
+        self.assertEqual(201, response.status_code)
+        self.assertEquals(
+            "http://localhost:5000/api/v1/lineup/{0}".format(job),
+            response.json()["ref"]
+        )
 
     def test_invalid_json_returns_400(self):
         url = build("/lineup/recommend")
@@ -324,8 +326,8 @@ class TestLineUpListingEndpoint(BaseCase):
 
         self.assertEquals(200, response.status_code)
         self.assertTrue(2, len(r))
-        self.assertTrue("/api/v1/lineup/1" in r)
-        self.assertTrue("/api/v1/lineup/2" in r)
+        self.assertTrue("http://localhost:5000/api/v1/lineup/1" in r)
+        self.assertTrue("http://localhost:5000/api/v1/lineup/2" in r)
 
     def test_no_lineups_yet(self):
         response = requests.get(build("/lineup"))
