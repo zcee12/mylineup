@@ -311,22 +311,26 @@ class TestLineUpEndpoint(BaseCase):
             sorted(["Radiohead", "Ed Sheeran"]), sorted(r["result"]))
 
 
-#class TestLineUpListingEndpoint(BaseCase):
-#
-#    def test_listing_includes_both_pending_and_processed_only_once(self):
-#        response = requests.get(build("/lineup"))
-#        r = response.json()
-#
-#        self.assertEquals(200, response.status_code)
-#        self.assertTrue(2, len(r))
-#        self.assertTrue("/api/v1/lineup/1" in r)
-#        self.aserTrue("/api/v1/lineup/2" in r)
-#
-#    def test_no_lineups_yet(self):
-#        response = requests.get(build("/lineup"))
-#        r = response.json()
-#
-#        self.assertEquals(200, response.status_code)
-#        self.assertTrue(2, len(r))
-#        self.assertTrue("/api/v1/lineup/123-abc" in r)
-#        self.aserTrue("/api/v1/lineup/abc-123" in r)
+class TestLineUpListingEndpoint(BaseCase):
+
+    def test_listing_includes_both_pending_and_processed_only_once(self):
+        write_pending_job("1", {})
+        write_processed_job("1", {})
+        write_processed_job("2", {})
+
+        response = requests.get(build("/lineup"))
+
+        r = response.json()
+
+        self.assertEquals(200, response.status_code)
+        self.assertTrue(2, len(r))
+        self.assertTrue("/api/v1/lineup/1" in r)
+        self.assertTrue("/api/v1/lineup/2" in r)
+
+    def test_no_lineups_yet(self):
+        response = requests.get(build("/lineup"))
+        r = response.json()
+        print r
+
+        self.assertEquals(200, response.status_code)
+        self.assertEquals([], r)

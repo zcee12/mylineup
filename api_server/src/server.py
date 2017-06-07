@@ -1,6 +1,7 @@
 import os
 import uuid
-from flask import Flask, request, Response, json
+from sets import Set
+from flask import Flask, request, Response, json, url_for
 app = Flask(__name__)
 
 MIME_TYPE = "application/json"
@@ -151,6 +152,17 @@ def lineup(lineup):
         return _success_response(data, 200)
 
     return _not_found_response()
+
+
+@app.route("/api/v1/lineup")
+def lineups():
+    pending = os.listdir(PENDING_DIR)
+    processed = os.listdir(PROCESSED_DIR)
+
+    lineups = list(Set(pending).union(Set(processed)))
+
+    refs = [url_for("lineup", lineup=l) for l in lineups]
+    return _success_response(refs, 200)
 
 
 if __name__ == "__main__":
