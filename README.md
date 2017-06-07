@@ -144,11 +144,17 @@ GET http://localhost:5000/api/v1/lineup/04bdea20-968e-49af-900b-16566fa5d61f
 ## Unit and Integration Tests
 
 ### api-server
+You'll need to first start the service in a separate process with a test set of directories:
 ```
-cd api-server && make test
+cd api_server && make run-for-test
+```
+
+Then...
+```
+cd api_server && make test
 ```
 
 ### aggregator-service
 ```
-cd agregator-service && make test
+cd aggregator_service && make test
 ```
