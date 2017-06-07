@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 MIME_TYPE = "application/json"
 
-# TODO pass this in at runtime
+# This is a bit ugly :(
 PENDING_DIR = os.environ["PENDING_DIR"]
 PROCESSED_DIR = os.environ["PROCESSED_DIR"]
 
@@ -84,9 +84,8 @@ def validate(data):
         raise ValidationError("JSON body does not match schema")
 
     try:
-        # TODO Make this sane
-        assert type(event_id) == type(unicode())
-        assert type(artists) == type(list())
+        assert type(event_id) is unicode
+        assert type(artists) is list
 
     except AssertionError:
         raise ValidationError("JSON body does not match schema")
