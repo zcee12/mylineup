@@ -6,8 +6,8 @@ app = Flask(__name__)
 MIME_TYPE = "application/json"
 
 # TODO pass this in at runtime
-PENDING_DIR = "test/fixtures/pending"
-PROCESSED_DIR = "test/fixtures/processed"
+PENDING_DIR = os.environ["PENDING_DIR"]
+PROCESSED_DIR = os.environ["PROCESSED_DIR"]
 
 
 class ValidationError(Exception):
@@ -155,4 +155,9 @@ def lineup(lineup):
 
 
 if __name__ == "__main__":
+    print "Starting!\n\n"
+    print "Using " + PENDING_DIR + " as the job pending dir"
+    print "Using " + PROCESSED_DIR + " as the job processed dir"
+    print "\n\n"
+
     app.run(debug=True)
