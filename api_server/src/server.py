@@ -27,8 +27,19 @@ def write_job(path, data):
 def validate(data):
     # TODO Switch to using jsonschema if this gets more complicated
     try:
-        request.json["event_id"]
+        event_id = request.json["event_id"]
+        artists = request.json["artists"]
+        print event_id
     except KeyError:
+        raise ValidationError("JSON body does not match schema")
+
+    try:
+        print type(event_id)
+        # TODO Make this sane
+        assert type(event_id) == type(unicode())
+        assert type(artists) == type(list())
+
+    except AssertionError:
         raise ValidationError("JSON body does not match schema")
 
 

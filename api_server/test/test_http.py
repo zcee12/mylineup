@@ -83,13 +83,48 @@ class TestRecommendEndpoint(BaseCase):
         self.assertEqual(400, response.status_code)
 
     def test_event_id_not_string_throws_400(self):
-        pass
+        payload = {
+            "event_id": 2,
+            "artists": ["Muse", "Radiohead"]
+        }
+
+        url = build("/lineup/recommend")
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(payload)
+        )
+
+        self.assertEqual(400, response.status_code)
 
     def test_no_artists_field_throws_400(self):
-        pass
+        payload = {
+            "event_id": "123"
+        }
+
+        url = build("/lineup/recommend")
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(payload)
+        )
+
+        self.assertEqual(400, response.status_code)
 
     def test_artists_not_list_throws_400(self):
-        pass
+        payload = {
+            "event_id": "123",
+            "artists": "Muse"
+        }
+
+        url = build("/lineup/recommend")
+        response = requests.post(
+            url,
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(payload)
+        )
+
+        self.assertEqual(400, response.status_code)
 
     def test_no_content_type(self):
         pass
