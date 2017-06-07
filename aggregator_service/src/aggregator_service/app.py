@@ -16,9 +16,8 @@ LOGGER = logging.getLogger(__name__)
 INTERVAL = 10
 CONF_LOCATION = "config.json"
 
-# TODO Put these in config
-PENDING_DIRECTORY = "runtime/pending"
-PROCESSED_DIRECTORY = "runtime/processed"
+PENDING_DIRECTORY = os.environ["PENDING_DIR"]
+PROCESSED_DIRECTORY = os.environ["PROCESSED_DIR"]
 
 
 class Config(object):

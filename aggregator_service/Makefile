@@ -11,7 +11,7 @@ fixture:
 	cp test/fixtures/pending-static/5c22b510-98ec-4570-a8e5-1c422ffb41f9 runtime/pending/
 
 run: venv
-	venv/bin/python src/aggregator_service/app.py
+	PENDING_DIR=../runtime/pending PROCESSED_DIR=../runtime/processed venv/bin/python src/aggregator_service/app.py
 
 # With thanks - http://blog.bottlepy.org/2012/07/16/virtualenv-and-makefiles.html
 venv: venv/bin/activate
