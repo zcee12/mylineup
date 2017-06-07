@@ -11,6 +11,10 @@ PROCESSED_DIR = "test/fixtures/processed"
 BASE_URL = "http://localhost:5000/api/v1"
 
 
+def build(stub):
+    return "{0}{1}".format(BASE_URL, stub)
+
+
 def clean():
     try:
         shutil.rmtree(PENDING_DIR)
@@ -281,7 +285,7 @@ class TestLineUpEndpoint(BaseCase):
 
         r = response.json()
         self.assertEquals(4, len(r.keys()))
-        self.assertEquals("succeeded", r["status"])
+        self.assertEquals("pending", r["status"])
         self.assertEquals("Glastonbury-2017", r["event_id"])
         self.assertEquals(
             sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
@@ -318,7 +322,3 @@ class TestLineUpEndpoint(BaseCase):
             sorted(["Radiohead", "Nobody"]), sorted(r["artists"]))
         self.assertEquals(
             sorted(["Radiohead", "Ed Sheeran"]), sorted(r["result"]))
-
-
-def build(stub):
-    return "{0}{1}".format(BASE_URL, stub)

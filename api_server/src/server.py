@@ -3,6 +3,7 @@ import uuid
 from flask import Flask, request, Response, json
 app = Flask(__name__)
 
+MIME_TYPE = "application/json"
 
 # TODO pass this in at runtime
 PENDING_DIR = "test/fixtures/pending"
@@ -22,8 +23,7 @@ def _get_processed_location(lineup):
 
 
 def _is_pending(lineup):
-    pending_location = _get_pending_location(lineup)
-    return os.path.isfile(pending_location)
+    return os.path.isfile(_get_pending_location(lineup))
 
 
 def _is_processed(lineup):
@@ -46,10 +46,26 @@ def _get_processed_status(lineup):
     return _get_processed_job(lineup)["status"]
 
 
+def _success_response(data, status):
+    return Response(
+        json.dumps(data),
+        status=status,
+        mimetype="application/json"
+    )
+
+
 def _not_found_response():
     return Response(
         json.dumps({"msg": "Line up not found"}),
         status=404,
+        mimetype="application/json"
+    )
+
+
+def _bad_request_response(error):
+    return Response(
+        json.dumps({"status": 400, "reason": str(error)}),
+        status=400,
         mimetype="application/json"
     )
 
@@ -78,11 +94,7 @@ def validate(data):
 
 @app.errorhandler(ValidationError)
 def bad_request(error):
-    return Response(
-        json.dumps({"status": 400}),
-        status=400,
-        mimetype="application/json"
-    )
+    return _bad_request_response(error)
 
 
 @app.route("/api/v1/lineup/recommend", methods=["POST"])
@@ -127,26 +139,17 @@ def lineup(lineup):
             "artists": job["artists"],
             "result": job["result"]
         }
-        return Response(
-            json.dumps(data),
-            status=200,
-            mimetype="application/json"
-        )
+        return _success_response(data, 200)
 
     if _is_pending(lineup):
         job = _get_pending_job(lineup)
-        print job
         data = {
             "status": "pending",
             "event_id": job["event_id"],
             "artists": job["artists"],
             "result": None
         }
-        return Response(
-            json.dumps(data),
-            status=200,
-            mimetype="application/json"
-        )
+        return _success_response(data, 200)
 
     return _not_found_response()
 
