@@ -3,9 +3,9 @@
 clean:
 	rm -rf venv/
 
-test:
+test: venv
 	# Switch this to use setup.py later
-	PENDING_DIR=test/fixtures/pending PROCESSED_DIR=test/fixtures/processed nosetests test
+	PENDING_DIR=test/fixtures/pending PROCESSED_DIR=test/fixtures/processed venv/bin/nosetests test
 
 fixture:
 	cp test/fixtures/pending-static/5c22b510-98ec-4570-a8e5-1c422ffb41f9 runtime/pending/
