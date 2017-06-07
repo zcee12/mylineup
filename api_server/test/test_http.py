@@ -330,7 +330,6 @@ class TestLineUpListingEndpoint(BaseCase):
     def test_no_lineups_yet(self):
         response = requests.get(build("/lineup"))
         r = response.json()
-        print r
 
         self.assertEquals(200, response.status_code)
         self.assertEquals([], r)

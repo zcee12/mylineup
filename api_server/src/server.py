@@ -1,4 +1,5 @@
 import os
+import glob
 import uuid
 from sets import Set
 from flask import Flask, request, Response, json, url_for
@@ -13,6 +14,19 @@ PROCESSED_DIR = os.environ["PROCESSED_DIR"]
 
 class ValidationError(Exception):
     pass
+
+
+def _list_just_job_ids(directory):
+    relative_paths = glob.glob(os.path.join(directory, "*"))
+    return [rp.split("/")[-1] for rp in relative_paths]
+
+
+def _get_pending_job_ids():
+    return _list_just_job_ids(PENDING_DIR)
+
+
+def _get_processed_job_ids():
+    return _list_just_job_ids(PROCESSED_DIR)
 
 
 def _get_pending_location(lineup):
@@ -156,8 +170,8 @@ def lineup(lineup):
 
 @app.route("/api/v1/lineup")
 def lineups():
-    pending = os.listdir(PENDING_DIR)
-    processed = os.listdir(PROCESSED_DIR)
+    pending = _get_pending_job_ids()
+    processed = _get_processed_job_ids()
 
     lineups = list(Set(pending).union(Set(processed)))
 
