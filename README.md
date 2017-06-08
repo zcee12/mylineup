@@ -76,6 +76,7 @@ make sanity-check
 
 ```
 POST /api/v1/lineup/recommend
+Content-Type: application/json
 
 {
     "event_id": "27082564-glastonbury-festival-2017",
@@ -106,6 +107,8 @@ GET http://localhost:5000/api/v1/lineup/04bdea20-968e-49af-900b-16566fa5d61f/sta
 
 *Response*
 ```
+Content-Type: application/json
+
 {
     "value": "pending"
 }
