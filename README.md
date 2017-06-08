@@ -8,10 +8,9 @@ You could also find the related artists for artists from the SongKick line up an
 
 ### Credentials
 You need both Spotify and Songkick API keys.
-Create a config file under:
-```aggregator_service/config.json```
+Create a config file under ```aggregator_service/config.json```
 
-With key value pairs for the API keys (dropping in your own keys):
+Provide key value pairs for the API keys (dropping in your own keys):
 ```
 {
     "spotify_client_id": "<spotify-client-id>",
@@ -23,7 +22,7 @@ With key value pairs for the API keys (dropping in your own keys):
 ### Environment
 The services are built against Python2.7.
 
-Each service will run in it's own Python virtualenv and there are dependent Make targets to install each of applications dependencies first.
+Each service will run in it's own Python ```virtualenv```; there are dependent Make targets to install each applications dependencies first.
 
 You *will* need to install ```virtualenv``` if you don't have it. 
 
@@ -41,8 +40,8 @@ make clean
 
 ### Note on Runtime directories
 On starting the below you'll need a `runtime/` directory at the top level.
-If all goes well, the make targets will make this for you.
-It contains 'pending/' and 'processed/' directories to mimic a poor mans dispatch queue and backend.
+The make targets should take care of this for you.
+The runtime directory contains ```pending/``` and ```processed/``` directories to mimic a poor mans dispatch queue and backend.
 Both services require "PENDING_DIR" and "PROCESSING_DIR" to be set as environment variables. If you use the make targets, these will be set for you.
 
 ### Run the API server
