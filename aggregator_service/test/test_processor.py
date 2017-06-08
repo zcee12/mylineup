@@ -47,7 +47,7 @@ class TestProcessor(TestCase):
         clean()
         shutil.copyfile(FIXTURE_JOB, PENDING_LOCATION)
 
-    def teardown():
+    def tearDown(self):
         clean()
 
     def test_init(self):
