@@ -6,6 +6,9 @@ You could also collect related artists for artists from the SongKick line up and
 
 ## Running the Services
 
+All commands are assumed to be from the project root.
+Some change into sub directories - make sure you return to the root to run the next command.
+
 ### Credentials
 You need both Spotify and Songkick API keys.
 Create a config file under ```aggregator_service/config.json```
