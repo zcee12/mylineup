@@ -83,7 +83,6 @@ Content-Type: application/json
     "artists": ["Radiohead", "Muse"]
 }
 ```
-Where:
 *event_id* is a valid SongKick event ID.
 - See https://www.songkick.com/developer/events-details
 
@@ -113,7 +112,6 @@ Content-Type: application/json
     "value": "pending"
 }
 ```
-Where:
 *value* is one of `pending|failed|succeeded`
 
 ### Get a lineup
