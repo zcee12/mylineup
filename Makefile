@@ -2,6 +2,8 @@
 
 clean:
 	rm -rf runtime/
+	cd aggregator_service && make clean && cd ../
+	cd api_server && make clean && cd ../
 
 runtime:
 	mkdir -p runtime/pending/
