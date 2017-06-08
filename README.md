@@ -117,6 +117,20 @@ Content-Type: application/json
 ```
 *value* is one of `pending|failed|succeeded`
 
+### List all recommended lineups (no truncation or pagination!)
+*Request*
+```
+GET http://localhost:5000/api/v1/lineup
+```
+
+*Response*
+```
+[
+  "http://localhost:5000/api/v1/lineup/dc25ce0d-11e9-430f-9eb7-b54fe9c57842",
+  "http://localhost:5000/api/v1/lineup/60074416-622d-45c5-b1c8-c0cd86511098"
+]
+```
+
 ### Get a recommended lineup
 *Request*
 
