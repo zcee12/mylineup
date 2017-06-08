@@ -117,7 +117,7 @@ Content-Type: application/json
 ```
 *value* is one of `pending|failed|succeeded`
 
-### Get a lineup
+### Get a recommended lineup
 *Request*
 
 ```
