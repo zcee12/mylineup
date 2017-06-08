@@ -73,6 +73,7 @@ make sanity-check
 
 ### Ask for a lineup recommendation
 *Request*
+
 ```
 POST /api/v1/lineup/recommend
 
@@ -80,7 +81,7 @@ POST /api/v1/lineup/recommend
     "event_id": "27082564-glastonbury-festival-2017",
     "artists": ["Radiohead", "Muse"]
 }
-
+```
 Where:
 *event_id* is a valid SongKick event ID.
 - See https://www.songkick.com/developer/events-details
