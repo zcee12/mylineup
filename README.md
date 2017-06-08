@@ -146,6 +146,7 @@ You'll need to first start the service in a separate process with a test set of 
 ```
 cd api_server && make run-for-test
 ```
+(Make sure you've stopped any previously started api servers on port 5000)
 
 Then...
 ```
